@@ -1,0 +1,78 @@
+======================================================================
+BANK MARKETING DATASET - DATA CLEANING REPORT
+======================================================================
+Raw Dataset Path        : data\raw\bank-full.csv
+Processed Dataset Path  : data\processed\bank_cleaned_leakfree.csv
+Raw File Size           : 4,610,348 bytes
+Raw File SHA-256        : d1513ec63b385506f7cfce9f2c5caa9fe99e7ba4e8c3fa264b3aaf0f849ed32d
+Raw File MD5            : e6b0ca77f3f200ec5428e04dd104da53
+
+----------------------------------------------------------------------
+1. ROW AND COLUMN DIMENSIONS
+----------------------------------------------------------------------
+Original Row Count      : 45,211
+Final Row Count         : 45,211
+Rows Removed            : 0 (100% row preservation)
+Original Column Count   : 17
+Final Column Count      : 18
+
+----------------------------------------------------------------------
+2. COLUMN SCHEMAS
+----------------------------------------------------------------------
+Original Columns (17):
+  age, job, marital, education, default, balance, housing, loan, contact, day, month, duration, campaign, pdays, previous, poutcome, y
+
+Final Columns (18):
+  age, job, marital, education, default, balance, housing, loan, contact, day, month, campaign, pdays, previous, poutcome, pcontacted, is_overdrawn, y
+
+----------------------------------------------------------------------
+3. EXCLUDED COLUMNS & DATA LEAKAGE MITIGATION
+----------------------------------------------------------------------
+Removed Column          : duration
+Leakage Risk Rationale  :
+  Target/temporal data leakage: Call duration is strictly unknown prior to placing a telemarketing call. In real-world operation, a predictive model ranks leads BEFORE dialing. Including duration creates unrealistically optimistic performance and invalidates operational deployment.
+Benchmark File Policy   : Single primary leak-free dataset created as instructed.
+
+----------------------------------------------------------------------
+4. TRANSFORMATIONS PERFORMED
+----------------------------------------------------------------------
+A. Handling of pdays and Prior Contact:
+   - Sentinel Value (-1) Count: 36,954 (81.74%)
+   - Created 'pcontacted': Binary flag (1 if pdays != -1, 0 if pdays == -1).
+   - Replaced pdays = -1 with 0 for continuous representation while 'pcontacted' preserves contact status.
+
+B. Handling of balance and Overdrafts:
+   - Negative Balance Count  : 3,766 (8.33%)
+   - Balance Range           : [-8,019 to 102,127]
+   - Created 'is_overdrawn'  : Binary flag (1 if balance < 0, 0 otherwise).
+   - Original balance values preserved without deletion or artificial truncation.
+
+C. Handling of Categorical 'unknown' Values:
+   - Explicit 'unknown' categories were preserved in all columns (no mode imputation).
+     * job       : 288 unknown rows (0.64%)
+     * education : 1,857 unknown rows (4.11%)
+     * contact   : 13,020 unknown rows (28.8%)
+     * poutcome  : 36,959 unknown rows (81.75%)
+
+D. Treatment of Outliers & Extreme Values (campaign, previous):
+   - campaign: max = 63, 99th percentile = 16.0 (451 rows above 99th percentile)
+   - previous: max = 275, 99th percentile = 8.9 (453 rows above 99th percentile)
+   - Strategy: Original values retained. No observations were deleted. Extreme values represent genuine business activity (high-touch marketing contacts) and will be accommodated by robust scaling or non-parametric algorithms during modeling.
+
+----------------------------------------------------------------------
+5. TARGET (y) DISTRIBUTION
+----------------------------------------------------------------------
+Raw Target Distribution      : {'no': 39922, 'yes': 5289}
+Cleaned Target Distribution  : {'no': 39922, 'yes': 5289}
+Class Proportions            : 'no' = 88.30%, 'yes' = 11.70%
+Target Balancing Status      : Preserved original distribution. No SMOTE, oversampling, or undersampling.
+
+----------------------------------------------------------------------
+6. INTEGRITY & VERIFICATION CHECKS
+----------------------------------------------------------------------
+Raw File Unaltered           : CONFIRMED (SHA-256 matches: d1513ec63b385506f7cfce9f2c5caa9fe99e7ba4e8c3fa264b3aaf0f849ed32d)
+Missing Values Introduced    : None (0 NaN / null values in processed dataset)
+Row Count Exact Match        : CONFIRMED (45,211 rows retained)
+Duration Excluded            : CONFIRMED ('duration' absent from processed dataset)
+New Features Added           : 'pcontacted', 'is_overdrawn'
+======================================================================

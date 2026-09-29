@@ -1,0 +1,172 @@
+==============================================================================
+BANK MARKETING PROJECT (TASK 4) - EDA QUALITY-CONTROL (QC) AUDIT REPORT
+==============================================================================
+Audit Scope: Comprehensive Quality-Control Review of the Completed EDA Stage
+Audit Date : 2026-09-29
+Auditor    : Antigravity QC Engine
+
+------------------------------------------------------------------------------
+1. PASS / FAIL STATUS BY VERIFICATION CATEGORY
+------------------------------------------------------------------------------
+Category                                            Status   Evidence / Notes
+--------------------------------------------------  -------  ---------------------------------------------------------
+1. Raw Dataset Immutability                         PASS     SHA-256 and size (4,610,348 B) bitwise identical.
+2. Processed Dataset Immutability                   PASS     SHA-256 (5746c135...) and size (3,724,370 B) bitwise identical.
+3. Row & Column Dimensions (45,211 x 18)           PASS     Exactly 45,211 rows and 18 columns verified.
+4. Total Row Preservation (0 deleted)               PASS     Zero observations dropped (100% preservation).
+5. Target Leakage Exclusion ('duration')            PASS     'duration' completely absent from data, code, CSVs, & figures.
+6. Target Balancing Avoidance (No SMOTE/resample)   PASS     Original class distribution (88.30% / 11.70%) preserved.
+7. Train/Test Split Avoidance                       PASS     Full dataset analyzed without premature partitioning.
+8. Machine Learning Model Avoidance                 PASS     Zero predictive models trained or fitted.
+9. Required EDA Artifacts Existence                 PASS     All 6 output files and 13 figure files confirmed on disk.
+10. Figure Integrity & Formatting                   PASS     All 13 PNG images verified as valid, non-corrupt, 300 DPI.
+11. Numerical & Descriptive Statistics Accuracy     PASS     All means, medians, IQRs, ranges verified to 0.01 tolerance.
+12. Categorical Frequencies & Rates Accuracy        PASS     All category counts, percentages, and rates exact.
+13. Target Distribution Verification                PASS     Counts ('no': 39,922; 'yes': 5,289) and ratio (7.55:1) exact.
+14. pdays / pcontacted Interpretation               PASS     pdays=0 for pcontacted=0 clearly labeled as sentinel encoding.
+15. balance / is_overdrawn Interpretation           PASS     Overdrafts analyzed as financial profile associations.
+16. Correlation Matrix Accuracy                     PASS     Pearson and Spearman matrices exact to 1e-15 tolerance.
+17. Statistical Hypothesis Tests Accuracy           PASS     Chi-square and Mann-Whitney U stats and p-values verified.
+18. Effect Sizes Accuracy                           PASS     Cramér's V and rank-biserial correlation verified.
+19. Figure Titles & Labeling Appropriate            PASS     All titles observational; zero causal phrasing ("Impact/Effect").
+20. Observational & Non-Causal Language Adherence   PASS     Strictly uses association wording throughout all narratives.
+
+------------------------------------------------------------------------------
+2. NUMERICAL DISCREPANCIES AUDIT
+------------------------------------------------------------------------------
+- Target Distribution Table (outputs/eda_target_analysis.csv):
+  * 'no'  : 39,922 rows (88.3015%) -> Exact match with dataset.
+  * 'yes' : 5,289 rows (11.6985%)  -> Exact match with dataset.
+  * Imbalance ratio: 7.5519 : 1    -> Exact match.
+
+- Descriptive Statistics Table (outputs/eda_descriptive_statistics.csv):
+  * age         : mean=40.94, std=10.62, median=39.00, IQR=15.00, range=[18, 95]   -> Exact match.
+  * balance     : mean=1362.27, std=3044.77, median=448.00, IQR=1356.00, range=[-8019, 102127] -> Exact match.
+  * day         : mean=15.81, std=8.32, median=16.00, IQR=13.00, range=[1, 31]     -> Exact match.
+  * campaign    : mean=2.76, std=3.10, median=2.00, IQR=2.00, range=[1, 63]        -> Exact match.
+  * pdays       : mean=41.02, std=99.79, median=0.00, IQR=0.00, range=[0, 871]     -> Exact match.
+  * previous    : mean=0.58, std=2.30, median=0.00, IQR=0.00, range=[0, 275]       -> Exact match.
+  * pcontacted  : mean=0.18, std=0.39, median=0.00, IQR=0.00, range=[0, 1]         -> Exact match.
+  * is_overdrawn: mean=0.08, std=0.28, median=0.00, IQR=0.00, range=[0, 1]         -> Exact match.
+
+- Categorical Summary Table (outputs/eda_categorical_summary.csv):
+  * Verified all 45 category rows across 9 categorical features.
+  * Zero numerical discrepancies detected between dataset calculations, CSV tables, and text report.
+
+------------------------------------------------------------------------------
+3. DATA-INTEGRITY AUDIT
+------------------------------------------------------------------------------
+- Raw File Path         : data/raw/bank-full.csv
+  * SHA-256 Checksum    : d1513ec63b385506f7cfce9f2c5caa9fe99e7ba4e8c3fa264b3aaf0f849ed32d
+  * File Size           : 4,610,348 bytes
+  * Record Count        : 45,211 rows × 17 columns
+  * Integrity Status    : UNTOUCHED & BITWISE IDENTICAL
+
+- Processed File Path   : data/processed/bank_cleaned_leakfree.csv
+  * SHA-256 Checksum    : 5746c135ab250672070ccd1cf1b8b9798e097935c0ca3b68899cc8a5363796f6
+  * File Size           : 3,724,370 bytes
+  * Record Count        : 45,211 rows × 18 columns
+  * Missing Values      : 0 (0.00%)
+  * Integrity Status    : UNTOUCHED & BITWISE IDENTICAL
+
+------------------------------------------------------------------------------
+4. DUPLICATE-ROW INTERPRETATION & SPECIAL CHECK
+------------------------------------------------------------------------------
+- Raw Dataset Duplicate Status:
+  * Exact duplicate rows in data/raw/bank-full.csv: 0 (all 45,211 rows unique).
+- Processed Dataset Duplicate Status:
+  * Exact duplicate rows in data/processed/bank_cleaned_leakfree.csv: 16 rows.
+- Special Check Verification:
+  * Verified that these 16 rows were NOT duplicate original observations.
+  * In the raw dataset, each of these 16 rows had a distinct call 'duration' (e.g., Row 2807 had duration=179s; Row 2871 had duration=198s).
+  * When 'duration' was excluded to eliminate data leakage, these rows collapsed into identical demographic and contact feature combinations.
+- Adopted Standard Phrasing:
+  "16 rows share identical values across the retained leak-free feature set after duration was excluded. These are not necessarily duplicate original observations."
+  * This phrasing is now explicitly integrated into both outputs/eda_report.txt and src/eda_analysis.py.
+
+------------------------------------------------------------------------------
+5. TARGET LEAKAGE VERIFICATION ('duration')
+------------------------------------------------------------------------------
+- Audit of processed CSV header: 'duration' is ABSENT.
+- Audit of src/eda_analysis.py: 'duration' is never accessed or plotted.
+- Audit of correlation matrices: 'duration' is ABSENT.
+- Audit of outputs/figures/: 'duration' is ABSENT from all 13 figures.
+- Prominent Leakage Warning Statement verified in outputs/eda_report.txt:
+  "'duration' was excluded from EDA because it is a post-contact variable and creates potential target leakage for a pre-call prediction setting. Call duration cannot be observed prior to dialing a prospective client."
+
+------------------------------------------------------------------------------
+6. STATISTICAL TEST & EFFECT SIZE VERIFICATION
+------------------------------------------------------------------------------
+A. Categorical Association Tests (Chi-Square Test of Independence with y):
+   * poutcome    : Chi2 = 4,391.51, df =  3, p = 0.00e+00, Cramér's V = 0.3116
+   * month       : Chi2 = 3,061.84, df = 11, p = 0.00e+00, Cramér's V = 0.2598
+   * pcontacted  : Chi2 = 1,263.52, df =  1, p = 9.55e-277, Cramér's V = 0.1671
+   * contact     : Chi2 = 1,035.71, df =  2, p = 1.25e-225, Cramér's V = 0.1512
+   * housing     : Chi2 =   874.82, df =  1, p = 2.92e-192, Cramér's V = 0.1390
+   * job         : Chi2 =   836.11, df = 11, p = 3.34e-172, Cramér's V = 0.1351
+   * education   : Chi2 =   238.92, df =  3, p = 1.63e-51, Cramér's V = 0.0722
+   * loan        : Chi2 =   209.62, df =  1, p = 1.67e-47, Cramér's V = 0.0679
+   * marital     : Chi2 =   196.50, df =  2, p = 2.15e-43, Cramér's V = 0.0656
+   * is_overdrawn: Chi2 =   148.42, df =  1, p = 3.84e-34, Cramér's V = 0.0571
+   * default     : Chi2 =    22.20, df =  1, p = 2.45e-06, Cramér's V = 0.0217
+   -> All test statistics, degrees of freedom, and Cramér's V values verified exact.
+
+B. Continuous Feature Comparisons (Mann-Whitney U Test between y='yes' and y='no'):
+   * previous : U = 127,174,833.0, p = 3.49e-283, Rank-Biserial r = -0.2046
+   * balance  : U = 124,589,983.5, p = 6.59e-101, Rank-Biserial r = -0.1801
+   * campaign : U =  90,300,543.5, p = 1.95e-71,  Rank-Biserial r = +0.1447
+   * age      : U = 103,915,109.5, p = 6.28e-02,  Rank-Biserial r = +0.0157 (Not statistically significant at alpha=0.05)
+   -> All test statistics and rank-biserial effect sizes verified exact.
+
+------------------------------------------------------------------------------
+7. FIGURE VERIFICATION
+------------------------------------------------------------------------------
+All 13 figures in outputs/figures/ were opened and verified:
+1.  01_target_distribution.png              : Valid PNG (94 KB). Shows 'no' vs 'yes' counts and percentages.
+2.  02_numerical_distributions.png          : Valid PNG (455 KB). 6 subplots (age, balance, campaign, previous, pdays, day).
+3.  03_balance_distribution.png             : Valid PNG (163 KB). Log-modulus boxplot and subscription rate by overdraft.
+4.  04_age_distribution.png                 : Valid PNG (194 KB). Stacked histogram and binned subscription rates with sample sizes.
+5.  05_campaign_distribution.png            : Valid PNG (184 KB). Call counts (1-10) and subscription rate by call frequency.
+6.  06_previous_contact_analysis.png        : Valid PNG (187 KB). Contact count histogram and elapsed pdays histogram (>0).
+7.  07_pcontacted_vs_target.png             : Valid PNG (100 KB). Rates by pcontacted (23.07% vs 9.16%) with group sample sizes.
+8.  08_job_vs_subscription_rate.png         : Valid PNG (244 KB). Horizontal volume and rate bars across 12 occupations.
+9.  09_education_vs_subscription_rate.png   : Valid PNG (165 KB). Volume and rate across 4 education levels (including unknown).
+10. 10_credit_loan_vs_subscription_rate.png : Valid PNG (172 KB). 3 subplots for housing, loan, and credit default.
+11. 11_month_contact_poutcome_vs_target.png : Valid PNG (297 KB). 3 subplots for month, contact channel, and prior outcome.
+12. 12_correlation_heatmap.png              : Valid PNG (390 KB). Dual heatmaps for Pearson and Spearman correlations.
+13. 13_numerical_relationships_target.png   : Valid PNG (281 KB). 4 boxplots by subscription outcome (age, balance, campaign, previous).
+
+------------------------------------------------------------------------------
+8. CAUSAL-LANGUAGE REVIEW
+------------------------------------------------------------------------------
+- Checked all figure titles, axis labels, legends, and report summaries.
+- Phrases verified and adjusted:
+  * "strongest categorical association" -> Refined to "Among evaluated categorical variables, 'poutcome' exhibited the highest observed bivariate association statistic with the target (Cramér's V = 0.3116)... This reflects historical campaign record association and does not demonstrate that prior outcomes cause current subscriptions."
+  * "subscription rate degradation" / "diminishing association" -> Refined to "Campaign Contact Frequency Patterns: Across contact frequency strata, the observed subscription rate was 15.99% for 1 contact, 11.53% for 2 contacts, and lower in higher-frequency groups (>10 contacts: 3.73%). These cross-sectional patterns reflect observed differences across contact groups rather than a causal effect of successive calling."
+  * "seasonality" -> Refined to "Calendar Month Disparities: Observed subscription rates differed substantially across calendar contact months... These differences represent observational variations in campaign execution rather than proof that calendar months induce customer willingness to subscribe."
+  * "important association" -> Refined to describe statistical/business relevance without implying causal leverage.
+- Dedicated Limitations Section (Section 11) in outputs/eda_report.txt reinforces observational limitations, confounding factors, and the distinction between statistical and practical significance.
+
+------------------------------------------------------------------------------
+9. EXACT CORRECTIONS MADE
+------------------------------------------------------------------------------
+1. Fixed memory-level column addition in src/eda_analysis.py:
+   - Previously, temporary binning columns ('age_group', 'campaign_binned') were created directly on df in memory, causing Section 1 of the report to display 20 columns instead of 18.
+   - Corrected to use independent Series objects ('age_group_series', 'campaign_binned_series'), preserving df with exactly 18 columns in both memory and report.
+2. Corrected duplicate-row wording in outputs/eda_report.txt and src/eda_analysis.py:
+   - Replaced generic duplicate count label with the exact approved phrasing:
+     "16 rows share identical values across the retained leak-free feature set after duration was excluded. These are not necessarily duplicate original observations."
+3. Refined Section 12 findings in outputs/eda_report.txt and src/eda_analysis.py:
+   - Eliminated any ambiguity regarding causality in contact frequency, prior campaign outcome, and calendar month patterns.
+4. Resolved seaborn and matplotlib formatting warnings:
+   - Added explicit 'hue' assignments to boxplots and set tick locators prior to tick labels.
+
+------------------------------------------------------------------------------
+10. FINAL RECOMMENDATION
+------------------------------------------------------------------------------
+All verification categories PASSED.
+Data integrity, leakage exclusion, statistical rigor, and observational phrasing are fully validated.
+
+RECOMMENDATION:
+>>> READY FOR MACHINE LEARNING STAGE <<<
+==============================================================================
